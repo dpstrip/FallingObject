@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Falling Object Solver</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <main class="container">
+      <section class="panel">
+        <h1>Second-Order ODE: Falling Ball</h1>
+        <p class="equation">h''(t) = -g</p>
+        <form id="simulation-form" class="form-grid">
+          <label>
+            Gravity (m/s²)
+            <input id="gravity" type="number" step="0.01" min="0" value="9.81" required />
+          </label>
+
+          <label>
+            Initial Height (m)
+            <input id="height" type="number" step="0.01" min="0" value="100" required />
+          </label>
+
+          <label>
+            Initial Velocity Magnitude (m/s)
+            <input id="velocity" type="number" step="0.01" min="0" value="0" required />
+          </label>
+
+          <label>
+            Initial Velocity Direction
+            <select id="velocity-direction">
+              <option value="up">Up</option>
+              <option value="down" selected>Down</option>
+            </select>
+          </label>
+
+          <label>
+            Time Step (s)
+            <input id="time-step" type="number" step="0.001" min="0.001" value="0.1" required />
+          </label>
+
+          <div class="actions">
+            <button type="submit">Run Simulation</button>
+          </div>
+        </form>
+        <p id="error-message" class="error-message"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Height and Velocity vs Time</h2>
+        <canvas id="result-chart"></canvas>
+      </section>
+
+      <section class="panel table-panel">
+        <h2>Simulation Table</h2>
+        <div class="table-wrapper">
+          <table id="result-table">
+            <thead>
+              <tr>
+                <th>Time (s)</th>
+                <th>Height (m)</th>
+                <th>Velocity (m/s)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="simulationViewModel.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
