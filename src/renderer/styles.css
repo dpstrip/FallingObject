@@ -111,6 +111,14 @@ button:hover {
   background: #1d4ed8;
 }
 
+.calculate-button {
+  background: #16a34a;
+}
+
+.calculate-button:hover {
+  background: #15803d;
+}
+
 .error-message {
   min-height: 20px;
   margin-top: 10px;

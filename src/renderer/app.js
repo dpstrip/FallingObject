@@ -202,7 +202,12 @@ async function runSimulation(tabState) {
       }
       result = await window.simulationApi.runDragSimulation(inputs);
     } else if (window.simulationApi && typeof window.simulationApi.runSimulation === 'function') {
-      result = await window.simulationApi.runSimulation(inputs);
+      try {
+        result = await window.simulationApi.runSimulation(inputs);
+      } catch (_error) {
+        result = runBasicSimulationLocally(inputs);
+        elements.errorMessage.textContent = 'Using local simulation fallback.';
+      }
     } else {
       result = runBasicSimulationLocally(inputs);
       elements.errorMessage.textContent = 'Using local simulation fallback.';
