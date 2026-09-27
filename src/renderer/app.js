@@ -2,6 +2,8 @@ const form = document.getElementById('simulation-form');
 const errorMessage = document.getElementById('error-message');
 const tableBody = document.querySelector('#result-table tbody');
 const chartCanvas = document.getElementById('result-chart');
+const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
+const tabContents = Array.from(document.querySelectorAll('.tab-content'));
 const { toTableRows, toChartSeries } = window.simulationViewModel;
 
 let chart;
@@ -112,5 +114,19 @@ form.addEventListener('submit', (event) => {
   event.preventDefault();
   runSimulation();
 });
+
+for (const button of tabButtons) {
+  button.addEventListener('click', () => {
+    const targetId = button.dataset.tabTarget;
+
+    for (const tabButton of tabButtons) {
+      tabButton.classList.toggle('is-active', tabButton === button);
+    }
+
+    for (const content of tabContents) {
+      content.classList.toggle('is-active', content.id === targetId);
+    }
+  });
+}
 
 runSimulation();
