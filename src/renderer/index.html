@@ -14,7 +14,7 @@
         <button type="button" class="tab-button" data-tab-target="drag-tab">Drag force</button>
       </section>
 
-      <section id="motion-tab" class="tab-content is-active" data-simulation-tab>
+      <section id="motion-tab" class="tab-content is-active" data-simulation-tab data-simulation-type="basic">
         <section class="panel">
           <h1>Second-Order ODE: Falling Ball</h1>
           <p class="equation">h''(t) = -g</p>
@@ -76,14 +76,34 @@
         </section>
       </section>
 
-      <section id="drag-tab" class="tab-content" data-simulation-tab>
+      <section id="drag-tab" class="tab-content" data-simulation-tab data-simulation-type="drag">
         <section class="panel">
-          <h1>Second-Order ODE: Falling Ball</h1>
-          <p class="equation">h''(t) = -g</p>
+          <h1>Second-Order ODE: Falling Ball with Drag</h1>
+          <p class="equation">m dv/dt = m g - 1/2 Cd rho A v^2</p>
           <form class="form-grid" data-role="simulation-form">
+            <label>
+              Mass (kg)
+              <input data-field="mass" type="number" step="0.01" min="0.01" value="80" required />
+            </label>
+
             <label>
               Gravity (m/s²)
               <input data-field="gravity" type="number" step="0.01" min="0" value="9.81" required />
+            </label>
+
+            <label>
+              Drag Coefficient (Cd)
+              <input data-field="drag-coefficient" type="number" step="0.01" min="0.01" value="1" required />
+            </label>
+
+            <label>
+              Air Density (kg/m³)
+              <input data-field="fluid-density" type="number" step="0.001" min="0.001" value="1.225" required />
+            </label>
+
+            <label>
+              Reference Area (m²)
+              <input data-field="reference-area" type="number" step="0.001" min="0.001" value="0.7" required />
             </label>
 
             <label>
@@ -113,6 +133,7 @@
               <button type="submit">Run Simulation</button>
             </div>
           </form>
+          <p class="equation-details" data-role="terminal-velocity"></p>
           <p class="error-message" data-role="error-message"></p>
         </section>
 

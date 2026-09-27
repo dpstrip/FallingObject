@@ -8,8 +8,14 @@ function getTabElements(tabRoot) {
     form: tabRoot.querySelector('[data-role="simulation-form"]'),
     errorMessage: tabRoot.querySelector('[data-role="error-message"]'),
     tableBody: tabRoot.querySelector('[data-role="result-table"] tbody'),
-    chartCanvas: tabRoot.querySelector('[data-role="result-chart"]')
+    chartCanvas: tabRoot.querySelector('[data-role="result-chart"]'),
+    terminalVelocity: tabRoot.querySelector('[data-role="terminal-velocity"]')
   };
+}
+
+function getOptionalFieldValue(tabState, fieldName) {
+  const field = tabState.fields[fieldName];
+  return field ? field.value : undefined;
 }
 
 function renderTable(states, tableBody) {
@@ -95,21 +101,35 @@ function renderChart(states, chartCanvas, currentChart) {
 }
 
 async function runSimulation(tabState) {
-  const { fields, elements } = tabState;
+  const { fields, elements, simulationType } = tabState;
   elements.errorMessage.textContent = '';
+  if (elements.terminalVelocity) {
+    elements.terminalVelocity.textContent = '';
+  }
 
   const inputs = {
     gravity: fields.gravity.value,
     initialHeight: fields.height.value,
     initialVelocity: fields.velocity.value,
     velocityDirection: fields.velocityDirection.value,
-    timeStep: fields.timeStep.value
+    timeStep: fields.timeStep.value,
+    mass: getOptionalFieldValue(tabState, 'mass'),
+    dragCoefficient: getOptionalFieldValue(tabState, 'dragCoefficient'),
+    fluidDensity: getOptionalFieldValue(tabState, 'fluidDensity'),
+    referenceArea: getOptionalFieldValue(tabState, 'referenceArea')
   };
 
   try {
-    const result = await window.simulationApi.runSimulation(inputs);
+    const result = simulationType === 'drag'
+      ? await window.simulationApi.runDragSimulation(inputs)
+      : await window.simulationApi.runSimulation(inputs);
+
     renderTable(result.states, elements.tableBody);
     tabState.chart = renderChart(result.states, elements.chartCanvas, tabState.chart);
+
+    if (elements.terminalVelocity && Number.isFinite(result.terminalVelocity)) {
+      elements.terminalVelocity.textContent = `Terminal Velocity: ${result.terminalVelocity.toFixed(4)} m/s`;
+    }
   } catch (error) {
     elements.errorMessage.textContent = error.message || 'Simulation failed.';
   }
@@ -136,12 +156,17 @@ for (const tabRoot of simulationTabs) {
   const tabState = {
     chart: undefined,
     elements,
+    simulationType: tabRoot.dataset.simulationType || 'basic',
     fields: {
       gravity: tabRoot.querySelector('[data-field="gravity"]'),
       height: tabRoot.querySelector('[data-field="height"]'),
       velocity: tabRoot.querySelector('[data-field="velocity"]'),
       velocityDirection: tabRoot.querySelector('[data-field="velocity-direction"]'),
-      timeStep: tabRoot.querySelector('[data-field="time-step"]')
+      timeStep: tabRoot.querySelector('[data-field="time-step"]'),
+      mass: tabRoot.querySelector('[data-field="mass"]'),
+      dragCoefficient: tabRoot.querySelector('[data-field="drag-coefficient"]'),
+      fluidDensity: tabRoot.querySelector('[data-field="fluid-density"]'),
+      referenceArea: tabRoot.querySelector('[data-field="reference-area"]')
     }
   };
 

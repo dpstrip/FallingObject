@@ -59,6 +59,12 @@ h2 {
   font-weight: 600;
 }
 
+.equation-details {
+  margin: 12px 0 0;
+  color: #1f2937;
+  font-weight: 600;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
