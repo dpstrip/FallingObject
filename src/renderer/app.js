@@ -1,6 +1,10 @@
 const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
 const tabContents = Array.from(document.querySelectorAll('.tab-content'));
 const simulationTabs = Array.from(document.querySelectorAll('[data-simulation-tab]'));
+const calculationDialog = document.getElementById('calculation-dialog');
+const calculationStatus = document.getElementById('calculation-status');
+const calculationOutput = document.getElementById('calculation-output');
+const closeCalculationDialogButton = document.getElementById('close-calculation-dialog');
 const viewModel = window.simulationViewModel || {
   toTableRows(states) {
     return states;
@@ -14,6 +18,50 @@ const viewModel = window.simulationViewModel || {
   }
 };
 const { toTableRows, toChartSeries } = viewModel;
+
+if (closeCalculationDialogButton && calculationDialog) {
+  closeCalculationDialogButton.addEventListener('click', () => {
+    calculationDialog.close();
+  });
+}
+
+function showCalculationDialogLoading() {
+  if (!calculationDialog || !calculationStatus || !calculationOutput) {
+    return;
+  }
+
+  calculationStatus.textContent = 'Calculating...';
+  calculationOutput.textContent = '';
+  if (!calculationDialog.open) {
+    calculationDialog.showModal();
+  }
+}
+
+function renderCalculationDialogResult(states) {
+  if (!calculationDialog || !calculationStatus || !calculationOutput) {
+    return;
+  }
+
+  calculationStatus.textContent = `Calculated ${states.length} rows.`;
+  const rows = toTableRows(states);
+  const lines = ['Time (s) | Height (m) | Velocity (m/s)', '--------------------------------------'];
+  for (const row of rows) {
+    lines.push(`${row.time} | ${row.height} | ${row.velocity}`);
+  }
+  calculationOutput.textContent = lines.join('\n');
+}
+
+function renderCalculationDialogError(message) {
+  if (!calculationDialog || !calculationStatus || !calculationOutput) {
+    return;
+  }
+
+  calculationStatus.textContent = 'Calculation failed.';
+  calculationOutput.textContent = message;
+  if (!calculationDialog.open) {
+    calculationDialog.showModal();
+  }
+}
 
 function getTabElements(tabRoot) {
   return {
@@ -180,6 +228,9 @@ async function runSimulation(tabState) {
   if (elements.terminalVelocity) {
     elements.terminalVelocity.textContent = '';
   }
+  if (simulationType === 'basic') {
+    showCalculationDialogLoading();
+  }
 
   const inputs = {
     gravity: fields.gravity.value,
@@ -215,12 +266,18 @@ async function runSimulation(tabState) {
 
     renderTable(result.states, elements.tableBody);
     tabState.chart = renderChart(result.states, elements.chartCanvas, tabState.chart);
+    if (simulationType === 'basic') {
+      renderCalculationDialogResult(result.states);
+    }
 
     if (elements.terminalVelocity && Number.isFinite(result.terminalVelocity)) {
       elements.terminalVelocity.textContent = `Terminal Velocity: ${result.terminalVelocity.toFixed(4)} m/s`;
     }
   } catch (error) {
     elements.errorMessage.textContent = error.message || 'Simulation failed.';
+    if (simulationType === 'basic') {
+      renderCalculationDialogError(elements.errorMessage.textContent);
+    }
   }
 }
 

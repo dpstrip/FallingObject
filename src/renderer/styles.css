@@ -160,3 +160,30 @@ td {
   border-bottom: 1px solid #e5e7eb;
   font-size: 0.92rem;
 }
+
+.calculation-dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 760px;
+  width: min(90vw, 760px);
+}
+
+.calculation-dialog::backdrop {
+  background: rgba(17, 24, 39, 0.5);
+}
+
+.calculation-dialog-content {
+  padding: 20px;
+}
+
+.calculation-output {
+  max-height: 320px;
+  overflow: auto;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 12px;
+  white-space: pre;
+  font-size: 0.86rem;
+}
