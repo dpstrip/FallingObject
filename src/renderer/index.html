@@ -79,6 +79,52 @@
       <section id="second-tab" class="tab-content">
         <section class="panel">
           <h2>Drag force</h2>
+          <p class="equation">D = 1/2 Cd rho A v^2</p>
+          <form id="drag-form" class="form-grid">
+            <label>
+              Mass (kg)
+              <input id="drag-mass" type="number" step="0.01" min="0.01" value="80" required />
+            </label>
+
+            <label>
+              Gravity (m/s²)
+              <input id="drag-gravity" type="number" step="0.01" min="0.01" value="9.81" required />
+            </label>
+
+            <label>
+              Drag Coefficient (Cd)
+              <input id="drag-cd" type="number" step="0.01" min="0.01" value="1.0" required />
+            </label>
+
+            <label>
+              Air Density (rho, kg/m³)
+              <input id="drag-rho" type="number" step="0.001" min="0.001" value="1.225" required />
+            </label>
+
+            <label>
+              Reference Area (m²)
+              <input id="drag-area" type="number" step="0.001" min="0.001" value="0.7" required />
+            </label>
+
+            <label>
+              Velocity Magnitude (m/s)
+              <input id="drag-velocity" type="number" step="0.01" min="0" value="53" required />
+            </label>
+
+            <div class="actions">
+              <button type="submit">Calculate</button>
+            </div>
+          </form>
+
+          <p id="drag-error-message" class="error-message"></p>
+
+          <div id="drag-results" class="drag-results" hidden>
+            <p><strong>Weight (W = mg):</strong> <span id="result-weight"></span> N</p>
+            <p><strong>Drag Force (D):</strong> <span id="result-drag"></span> N</p>
+            <p><strong>Net Force (W - D):</strong> <span id="result-net"></span> N</p>
+            <p><strong>Acceleration (a = (W - D)/m):</strong> <span id="result-acceleration"></span> m/s²</p>
+            <p><strong>Terminal Velocity (vt):</strong> <span id="result-terminal"></span> m/s</p>
+          </div>
         </section>
       </section>
     </main>
