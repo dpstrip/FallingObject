@@ -13,8 +13,32 @@ body {
   max-width: 1180px;
   margin: 0 auto;
   padding: 24px;
-  display: grid;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.tab-button {
+  background: #e5e7eb;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+}
+
+.tab-button.is-active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+.tab-content {
+  display: none;
   gap: 16px;
+}
+
+.tab-content.is-active {
+  display: grid;
 }
 
 .panel {

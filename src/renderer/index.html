@@ -9,64 +9,133 @@
   </head>
   <body>
     <main class="container">
-      <section class="panel">
-        <h1>Second-Order ODE: Falling Ball</h1>
-        <p class="equation">h''(t) = -g</p>
-        <form id="simulation-form" class="form-grid">
-          <label>
-            Gravity (m/s²)
-            <input id="gravity" type="number" step="0.01" min="0" value="9.81" required />
-          </label>
+      <section class="tabs" aria-label="Simulation Pages">
+        <button type="button" class="tab-button is-active" data-tab-target="motion-tab">1-dimensional motion</button>
+        <button type="button" class="tab-button" data-tab-target="drag-tab">Drag force</button>
+      </section>
 
-          <label>
-            Initial Height (m)
-            <input id="height" type="number" step="0.01" min="0" value="100" required />
-          </label>
+      <section id="motion-tab" class="tab-content is-active" data-simulation-tab>
+        <section class="panel">
+          <h1>Second-Order ODE: Falling Ball</h1>
+          <p class="equation">h''(t) = -g</p>
+          <form class="form-grid" data-role="simulation-form">
+            <label>
+              Gravity (m/s²)
+              <input data-field="gravity" type="number" step="0.01" min="0" value="9.81" required />
+            </label>
 
-          <label>
-            Initial Velocity Magnitude (m/s)
-            <input id="velocity" type="number" step="0.01" min="0" value="0" required />
-          </label>
+            <label>
+              Initial Height (m)
+              <input data-field="height" type="number" step="0.01" min="0" value="100" required />
+            </label>
 
-          <label>
-            Initial Velocity Direction
-            <select id="velocity-direction">
-              <option value="up">Up</option>
-              <option value="down" selected>Down</option>
-            </select>
-          </label>
+            <label>
+              Initial Velocity Magnitude (m/s)
+              <input data-field="velocity" type="number" step="0.01" min="0" value="0" required />
+            </label>
 
-          <label>
-            Time Step (s)
-            <input id="time-step" type="number" step="0.001" min="0.001" value="0.1" required />
-          </label>
+            <label>
+              Initial Velocity Direction
+              <select data-field="velocity-direction">
+                <option value="up">Up</option>
+                <option value="down" selected>Down</option>
+              </select>
+            </label>
 
-          <div class="actions">
-            <button type="submit">Run Simulation</button>
+            <label>
+              Time Step (s)
+              <input data-field="time-step" type="number" step="0.001" min="0.001" value="0.1" required />
+            </label>
+
+            <div class="actions">
+              <button type="submit">Run Simulation</button>
+            </div>
+          </form>
+          <p class="error-message" data-role="error-message"></p>
+        </section>
+
+        <section class="panel">
+          <h2>Height and Velocity vs Time</h2>
+          <canvas data-role="result-chart"></canvas>
+        </section>
+
+        <section class="panel table-panel">
+          <h2>Simulation Table</h2>
+          <div class="table-wrapper">
+            <table data-role="result-table">
+              <thead>
+                <tr>
+                  <th>Time (s)</th>
+                  <th>Height (m)</th>
+                  <th>Velocity (m/s)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
-        </form>
-        <p id="error-message" class="error-message"></p>
+        </section>
       </section>
 
-      <section class="panel">
-        <h2>Height and Velocity vs Time</h2>
-        <canvas id="result-chart"></canvas>
-      </section>
+      <section id="drag-tab" class="tab-content" data-simulation-tab>
+        <section class="panel">
+          <h1>Second-Order ODE: Falling Ball</h1>
+          <p class="equation">h''(t) = -g</p>
+          <form class="form-grid" data-role="simulation-form">
+            <label>
+              Gravity (m/s²)
+              <input data-field="gravity" type="number" step="0.01" min="0" value="9.81" required />
+            </label>
 
-      <section class="panel table-panel">
-        <h2>Simulation Table</h2>
-        <div class="table-wrapper">
-          <table id="result-table">
-            <thead>
-              <tr>
-                <th>Time (s)</th>
-                <th>Height (m)</th>
-                <th>Velocity (m/s)</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+            <label>
+              Initial Height (m)
+              <input data-field="height" type="number" step="0.01" min="0" value="100" required />
+            </label>
+
+            <label>
+              Initial Velocity Magnitude (m/s)
+              <input data-field="velocity" type="number" step="0.01" min="0" value="0" required />
+            </label>
+
+            <label>
+              Initial Velocity Direction
+              <select data-field="velocity-direction">
+                <option value="up">Up</option>
+                <option value="down" selected>Down</option>
+              </select>
+            </label>
+
+            <label>
+              Time Step (s)
+              <input data-field="time-step" type="number" step="0.001" min="0.001" value="0.1" required />
+            </label>
+
+            <div class="actions">
+              <button type="submit">Run Simulation</button>
+            </div>
+          </form>
+          <p class="error-message" data-role="error-message"></p>
+        </section>
+
+        <section class="panel">
+          <h2>Height and Velocity vs Time</h2>
+          <canvas data-role="result-chart"></canvas>
+        </section>
+
+        <section class="panel table-panel">
+          <h2>Simulation Table</h2>
+          <div class="table-wrapper">
+            <table data-role="result-table">
+              <thead>
+                <tr>
+                  <th>Time (s)</th>
+                  <th>Height (m)</th>
+                  <th>Velocity (m/s)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
       </section>
     </main>
 

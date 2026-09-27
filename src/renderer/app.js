@@ -1,12 +1,18 @@
-const form = document.getElementById('simulation-form');
-const errorMessage = document.getElementById('error-message');
-const tableBody = document.querySelector('#result-table tbody');
-const chartCanvas = document.getElementById('result-chart');
+const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
+const tabContents = Array.from(document.querySelectorAll('.tab-content'));
+const simulationTabs = Array.from(document.querySelectorAll('[data-simulation-tab]'));
 const { toTableRows, toChartSeries } = window.simulationViewModel;
 
-let chart;
+function getTabElements(tabRoot) {
+  return {
+    form: tabRoot.querySelector('[data-role="simulation-form"]'),
+    errorMessage: tabRoot.querySelector('[data-role="error-message"]'),
+    tableBody: tabRoot.querySelector('[data-role="result-table"] tbody'),
+    chartCanvas: tabRoot.querySelector('[data-role="result-chart"]')
+  };
+}
 
-function renderTable(states) {
+function renderTable(states, tableBody) {
   tableBody.innerHTML = '';
   const rows = toTableRows(states);
 
@@ -21,14 +27,14 @@ function renderTable(states) {
   }
 }
 
-function renderChart(states) {
+function renderChart(states, chartCanvas, currentChart) {
   const { labels, heights, velocities } = toChartSeries(states);
 
-  if (chart) {
-    chart.destroy();
+  if (currentChart) {
+    currentChart.destroy();
   }
 
-  chart = new Chart(chartCanvas, {
+  return new Chart(chartCanvas, {
     type: 'line',
     data: {
       labels,
@@ -88,29 +94,61 @@ function renderChart(states) {
   });
 }
 
-async function runSimulation() {
-  errorMessage.textContent = '';
+async function runSimulation(tabState) {
+  const { fields, elements } = tabState;
+  elements.errorMessage.textContent = '';
 
   const inputs = {
-    gravity: document.getElementById('gravity').value,
-    initialHeight: document.getElementById('height').value,
-    initialVelocity: document.getElementById('velocity').value,
-    velocityDirection: document.getElementById('velocity-direction').value,
-    timeStep: document.getElementById('time-step').value
+    gravity: fields.gravity.value,
+    initialHeight: fields.height.value,
+    initialVelocity: fields.velocity.value,
+    velocityDirection: fields.velocityDirection.value,
+    timeStep: fields.timeStep.value
   };
 
   try {
     const result = await window.simulationApi.runSimulation(inputs);
-    renderTable(result.states);
-    renderChart(result.states);
+    renderTable(result.states, elements.tableBody);
+    tabState.chart = renderChart(result.states, elements.chartCanvas, tabState.chart);
   } catch (error) {
-    errorMessage.textContent = error.message || 'Simulation failed.';
+    elements.errorMessage.textContent = error.message || 'Simulation failed.';
   }
 }
 
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  runSimulation();
-});
+function setActiveTab(targetId) {
+  for (const button of tabButtons) {
+    button.classList.toggle('is-active', button.dataset.tabTarget === targetId);
+  }
 
-runSimulation();
+  for (const content of tabContents) {
+    content.classList.toggle('is-active', content.id === targetId);
+  }
+}
+
+for (const button of tabButtons) {
+  button.addEventListener('click', () => {
+    setActiveTab(button.dataset.tabTarget);
+  });
+}
+
+for (const tabRoot of simulationTabs) {
+  const elements = getTabElements(tabRoot);
+  const tabState = {
+    chart: undefined,
+    elements,
+    fields: {
+      gravity: tabRoot.querySelector('[data-field="gravity"]'),
+      height: tabRoot.querySelector('[data-field="height"]'),
+      velocity: tabRoot.querySelector('[data-field="velocity"]'),
+      velocityDirection: tabRoot.querySelector('[data-field="velocity-direction"]'),
+      timeStep: tabRoot.querySelector('[data-field="time-step"]')
+    }
+  };
+
+  elements.form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    runSimulation(tabState);
+  });
+
+  runSimulation(tabState);
+});
