@@ -1,10 +1,8 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { FallingObjectSimulationService } = require('./services/FallingObjectSimulationService');
-const { DragFallingObjectSimulationService } = require('./services/DragFallingObjectSimulationService');
 
 const simulationService = new FallingObjectSimulationService();
-const dragSimulationService = new DragFallingObjectSimulationService();
 
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
@@ -22,10 +20,6 @@ function createMainWindow() {
 
 ipcMain.handle('simulation:run', (_event, rawInputs) => {
   return simulationService.run(rawInputs);
-});
-
-ipcMain.handle('simulation:run-drag', (_event, rawInputs) => {
-  return dragSimulationService.run(rawInputs);
 });
 
 app.whenReady().then(() => {
