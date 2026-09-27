@@ -116,6 +116,64 @@ function renderChart(states, chartCanvas, currentChart) {
   });
 }
 
+function buildSignedVelocity(initialVelocity, velocityDirection) {
+  if (velocityDirection !== 'up' && velocityDirection !== 'down') {
+    throw new Error('Velocity direction must be either up or down.');
+  }
+
+  return velocityDirection === 'up' ? initialVelocity : -initialVelocity;
+}
+
+function runBasicSimulationLocally(rawInputs) {
+  const gravity = Number(rawInputs.gravity);
+  const initialHeight = Number(rawInputs.initialHeight);
+  const initialVelocityMagnitude = Number(rawInputs.initialVelocity);
+  const timeStep = Number(rawInputs.timeStep);
+
+  if (!Number.isFinite(gravity) || gravity <= 0) {
+    throw new Error('Gravity must be a positive number.');
+  }
+
+  if (!Number.isFinite(initialHeight) || initialHeight < 0) {
+    throw new Error('Height must be a number greater than or equal to 0.');
+  }
+
+  if (!Number.isFinite(initialVelocityMagnitude) || initialVelocityMagnitude < 0) {
+    throw new Error('Initial velocity must be a number greater than or equal to 0.');
+  }
+
+  if (!Number.isFinite(timeStep) || timeStep <= 0) {
+    throw new Error('Time step must be a positive number.');
+  }
+
+  const initialVelocity = buildSignedVelocity(initialVelocityMagnitude, rawInputs.velocityDirection);
+  const states = [];
+  let time = 0;
+  let height = initialHeight;
+  let velocity = initialVelocity;
+  const acceleration = -gravity;
+
+  states.push({ time, height, velocity });
+
+  while (height > 0) {
+    velocity = velocity + acceleration * timeStep;
+    height = height + velocity * timeStep;
+    time = time + timeStep;
+
+    const clampedHeight = height < 0 ? 0 : height;
+    states.push({ time, height: clampedHeight, velocity });
+
+    if (clampedHeight === 0) {
+      break;
+    }
+  }
+
+  return {
+    equation: "h''(t) = -g",
+    states
+  };
+}
+
 async function runSimulation(tabState) {
   const { fields, elements, simulationType } = tabState;
   elements.errorMessage.textContent = '';
@@ -136,13 +194,19 @@ async function runSimulation(tabState) {
   };
 
   try {
-    if (!window.simulationApi) {
-      throw new Error('Simulation API is unavailable. Please restart the app.');
-    }
+    let result;
 
-    const result = simulationType === 'drag'
-      ? await window.simulationApi.runDragSimulation(inputs)
-      : await window.simulationApi.runSimulation(inputs);
+    if (simulationType === 'drag') {
+      if (!window.simulationApi || typeof window.simulationApi.runDragSimulation !== 'function') {
+        throw new Error('Drag simulation API is unavailable. Please restart the app.');
+      }
+      result = await window.simulationApi.runDragSimulation(inputs);
+    } else if (window.simulationApi && typeof window.simulationApi.runSimulation === 'function') {
+      result = await window.simulationApi.runSimulation(inputs);
+    } else {
+      result = runBasicSimulationLocally(inputs);
+      elements.errorMessage.textContent = 'Using local simulation fallback.';
+    }
 
     renderTable(result.states, elements.tableBody);
     tabState.chart = renderChart(result.states, elements.chartCanvas, tabState.chart);
