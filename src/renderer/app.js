@@ -1,7 +1,19 @@
 const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
 const tabContents = Array.from(document.querySelectorAll('.tab-content'));
 const simulationTabs = Array.from(document.querySelectorAll('[data-simulation-tab]'));
-const { toTableRows, toChartSeries } = window.simulationViewModel;
+const viewModel = window.simulationViewModel || {
+  toTableRows(states) {
+    return states;
+  },
+  toChartSeries(states) {
+    return {
+      labels: states.map((state) => state.time),
+      heights: states.map((state) => state.height),
+      velocities: states.map((state) => state.velocity)
+    };
+  }
+};
+const { toTableRows, toChartSeries } = viewModel;
 
 function getTabElements(tabRoot) {
   return {
@@ -34,6 +46,10 @@ function renderTable(states, tableBody) {
 }
 
 function renderChart(states, chartCanvas, currentChart) {
+  if (typeof Chart === 'undefined') {
+    throw new Error('Chart library did not load. Please check internet connection and reload the app.');
+  }
+
   const { labels, heights, velocities } = toChartSeries(states);
 
   if (currentChart) {
@@ -120,6 +136,10 @@ async function runSimulation(tabState) {
   };
 
   try {
+    if (!window.simulationApi) {
+      throw new Error('Simulation API is unavailable. Please restart the app.');
+    }
+
     const result = simulationType === 'drag'
       ? await window.simulationApi.runDragSimulation(inputs)
       : await window.simulationApi.runSimulation(inputs);
@@ -153,6 +173,10 @@ for (const button of tabButtons) {
 
 for (const tabRoot of simulationTabs) {
   const elements = getTabElements(tabRoot);
+  if (!elements.form || !elements.errorMessage || !elements.tableBody || !elements.chartCanvas) {
+    continue;
+  }
+
   const tabState = {
     chart: undefined,
     elements,
@@ -168,7 +192,9 @@ for (const tabRoot of simulationTabs) {
       fluidDensity: tabRoot.querySelector('[data-field="fluid-density"]'),
       referenceArea: tabRoot.querySelector('[data-field="reference-area"]')
     }
-  };
+      if (tabRoot.classList.contains('is-active')) {
+        runSimulation(tabState);
+      }
 
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
